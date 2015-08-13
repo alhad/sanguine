@@ -16,7 +16,7 @@ class NumberUtils
     str[offset..-1].unpack("Z*")[0]
   end
 
-  def self.isNullChar?(str, offset)
+  def self.nullChar?(str, offset)
     str[offset].unpack("C")[0] == 0
   end
 
@@ -107,7 +107,7 @@ class IndexEntry
     @flags = readFlags(flags)
     @filename = NumberUtils.readString(entryContent, 62)
     @entrySize = 62 + @filename.size + 1
-    while NumberUtils.isNullChar?(entryContent, @entrySize)
+    while NumberUtils.nullChar?(entryContent, @entrySize)
       @entrySize += 1
     end
 

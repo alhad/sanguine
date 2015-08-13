@@ -23,6 +23,8 @@ def run
    raise "Cannot run Commandlist"
 end
 
+def addCommand(command)
+  @commands.push(command)
 end
 
 

@@ -38,7 +38,6 @@ class GitDirectory
       case content[0]
       when "file"
         File.open("#{@gitDir}/#{fileName}", "w") do |file|
-          puts "Writing #{@gitDir}/#{fileName}"
           file.write("#{content[1]}\n")
         end
       when "dir"
@@ -51,7 +50,6 @@ class GitDirectory
         assetDestDir = "#{@gitDir}/#{fileName}"
         Dir.mkdir assetDestDir
         assetDir = Dir["#{File.dirname(__FILE__)}/#{content[1]}/*"]
-        puts "Copying assets from #{File.dirname(__FILE__)}/#{content[1]}"
         assetDir.each do |file|
           FileUtils.cp(file, "#{assetDestDir}")
         end

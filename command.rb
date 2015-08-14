@@ -1,46 +1,107 @@
-
+require_relative 'log'
+require_relative 'new'
 
 
 class Command
 
-def help
+  def help
+    Log.log("Unexpected base class call (help)", Log::Level::ERROR)
+  end
+
+  def run(gitdir, options)
+    Log.log("Unexpected base class call (run)", Log::Level::ERROR)
+  end
+
 end
 
-def run
-end
+class AddCommand < Command
 
-end
+  def initialize
+  end
 
-class CommandList < Command
-def initialize(commands)
-   @commands = commands
-end
+  def help
+  end
 
-def help(cmd)     
-end
+  def run(gitdir, options)
+  end
 
-def run
-   raise "Cannot run Commandlist"
-end
-
-def addCommand(command)
-  @commands.push(command)
 end
 
 
 class CheckoutCommand < Command
 
-def help
-	"Checkout command"
+  def initialize
+  end
+
+  def help
+    "Checkout command"
+  end
+
+  def run(gitdir, options)
+     puts "Running checkout command"
+  end
+
 end
 
-def run
-   puts "Running checkout command"
-end
+class HelpCommand < Command
+
+  def initialize
+  end
+
+  def help
+  end
+
+  def run(gitdir, options)
+  end
 
 end
 
+class InitCommand < Command
 
-cc = CheckoutCommand.new
-puts cc.help
-cc.run
+  def initialize
+  end
+
+  def help
+  end
+
+  def run(gitdir, options)
+    FileUtils.mkdir_p(gitdir)
+    NewGit.new("#{gitdir}/.git")
+  end
+
+end
+
+class StatusCommand < Command
+
+  def initialize
+  end
+
+  def help
+  end
+
+  def run(gitdir, options)
+  end
+
+end
+
+
+class CommandConsole
+  def initialize
+    @commands = {
+      "add" => AddCommand,
+      "checkout" => CheckoutCommand,
+      "help" => HelpCommand,
+      "init" => InitCommand,
+      "status" => StatusCommand,
+    }
+  end
+
+  def run(command, gitdir, options)
+    if !@commands[command]
+      puts "Unknown command #{command}"
+      return
+    end
+    @commands[command].new.run(gitdir, options)
+  end
+end
+

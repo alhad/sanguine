@@ -1,7 +1,10 @@
 require_relative "log"
 require_relative "config"
+require_relative "command"
 
 require 'fileutils'
+require 'optparse'
+require 'ostruct'
 
 class GitDirectory
 
@@ -63,23 +66,90 @@ class GitDirectory
 end
 
 
-class NewGit
-  def initialize(dir)
+class InitOptionsReader
+  def self.read(args)
+    options = OpenStruct.new
 
-    if File.exists?(dir)
-      Log.log("Not clobbering existing #{dir}")
-      return
+    opt_parser = OptionParser.new do |opts|
+      opts.banner = "Usage: sgit init [options]"
+
+      opts.on("-q", "--quiet", "Quiet", "Only print error and warning messages; all other output will be suppressed") do |v|
+        options[:quiet] = true
+      end
+
+      opts.on("--bare", "Bare") do |v|
+        options[:bare] = true
+      end
+
+      opts.on("--template=template_directory", "Template") do |templateDir|
+        options[:template] = templateDir
+      end
+
+      opts.on("--separate-git-dir git_dir", "SeparateGitDir") do |gitdir|
+        options[:separateGitDir] = gitdir
+      end
+
+      opts.on("--shared=[opt]", [:false, :true, :umask, :group, :all, :world, :everybody]) do |opt|
+        options[:shared] = opt
+      end
+
     end
 
-    Dir.mkdir(dir)
+    opt_parser.parse!(args)
+
+    puts args
+    if args.size > 0
+      options[:directory] = args[0]
+    end
+
+    options
+  end
+end
+
+
+class NewGit
+  def initialize(dir, options)
+
+    if !options.bare
+      dir = dir + "/.git"
+      if File.exists?(dir)
+        Log.log("Not clobbering existing #{dir}")
+        return
+      end
+
+      Dir.mkdir(dir)
+    end
 
     GitDirectory.new(dir).create
 
-    puts "Initialized empty Git repository in #{dir}/"
+    bare = ""
+
+    bare = "bare " if options.bare
+
+    puts "Initialized empty #{bare}Git repository in #{dir}"
 
   end
 end
 
 if __FILE__ == $0
-  g = NewGit.new("/tmp/scripttest/.git")
+  g = NewGit.new("/tmp/scripttest")
 end
+
+class InitCommand < Command
+
+  def initialize
+  end
+
+  def help
+  end
+
+  def run(gitdir, args)
+    options = InitOptionsReader.read(args)
+    FileUtils.mkdir_p(gitdir)
+    NewGit.new("#{gitdir}", options)
+  end
+
+end
+
+
+

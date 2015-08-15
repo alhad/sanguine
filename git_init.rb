@@ -97,7 +97,6 @@ class InitOptionsReader
 
     opt_parser.parse!(args)
 
-    puts args
     if args.size > 0
       options[:directory] = args[0]
     end
@@ -112,6 +111,7 @@ class NewGit
 
     if !options.bare
       dir = dir + "/.git"
+
       if File.exists?(dir)
         Log.log("Not clobbering existing #{dir}")
         return
@@ -126,14 +126,11 @@ class NewGit
 
     bare = "bare " if options.bare
 
-    puts "Initialized empty #{bare}Git repository in #{dir}"
+    puts "Initialized empty #{bare}Git repository in #{dir}" if !options.quiet
 
   end
 end
 
-if __FILE__ == $0
-  g = NewGit.new("/tmp/scripttest")
-end
 
 class InitCommand < Command
 
@@ -152,4 +149,7 @@ class InitCommand < Command
 end
 
 
+if __FILE__ == $0
+  g = NewGit.new("/tmp/scripttest")
+end
 

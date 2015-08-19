@@ -1,31 +1,4 @@
-class NumberUtils
-
-  def self.read32BitNumber(str, offset)
-   str[offset, 4].unpack("N")[0]
-  end
-
-  def self.read16BitNumber(str, offset)
-    str[offset, 2].unpack("n")[0]
-  end
-
-  def self.readsha1(str, offset)
-    str[offset, 20].unpack("H*")[0]
-  end
-
-  def self.readString(str, offset)
-    str[offset..-1].unpack("Z*")[0]
-  end
-
-  def self.nullChar?(str, offset)
-    str[offset].unpack("C")[0] == 0
-  end
-
-  def self.read32BitNumberNetworkOrder(str, offset)
-    str[offset, 4].unpack("L")[0]
-  end
-
-end
-
+require_relative 'NumberUtils'
 
 class IndexFlags
 
@@ -163,19 +136,17 @@ class GitIndex
 
   attr_reader :indexObject, :extensions
 
-  def initialize(indexFile)  
-
-    if !File.exists?(indexFile)
-      raise "No such file: #{indexFile}"
-    end
+  def initialize(indexDir)  
 
     @indexObject = IndexObject.new
     @extensions = []
-    @content = IO.binread(indexFile)
+    @indexPath = indexDir + "/index"
 
   end
 
   def readIndex
+
+    @content = IO.binread @indexPath
 
     if @content[0..3] != "DIRC"
       return false
@@ -211,12 +182,15 @@ class GitIndex
     true
   end
 
+  def addEntry(name, sha1)
+  end
+
+  def writeIndex
+    File.open(@indexPath, "wb") do |f|
+      f.write("DIRC")
+    end
+  end
+
 end
 
-
-gi = GitIndex.new(".git/index")
-
-if !gi.readIndex
-  exit 1
-end
 
